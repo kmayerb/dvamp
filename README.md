@@ -2,10 +2,15 @@
 
 <https://quay.io/repository/kmayerb/dvamp>
 
-An AWS Batch ready docker container for using kmayerb/vampire (forked from matsengrp/vampire/vampire). Whereas the original matesngrp countainer is > 10GB 
-and contains support for Olga aswell as R, this is a minimal container meant to recreate the python 3.6.10, tensorflow 1.14 environment needed to install a given branch of vampire, needed to train and evaluate a CDR3 VAE.
+An AWS Batch ready docker container for using kmayerb/vampire (forked from matsengrp/vampire/vampire). Whereas the original matesngrp countainer is > 10GB and contains support for Olga as well as R, this is a more minimal container (still 5.83 GB) meant to recreate the python 3.6.10, tensorflow 1.14 environment needed to run a given branch of vampire. Once vampire is installed, one can train and evaluate a CDR3 VAE.
 
-Currently the vampire conda env is created, but the vampire package is not installed. It can be done so in a nextflow process, here showing how to run the demo.sh shell script, and publish the model training diagnostic metrics.
+Currently the vampire conda env is pre-built in this container, but the vampire package is not installed. This step is saved for the the nextflow process. The example that follows, shows how to run the vampire demo.sh shell script.and publish the model training diagnostic metrics.
+
+## Using the Container in Nextflow
+
+Note in `m5.nf` the `params.vampire_branch` arguement controls which branch of the kmayerb/vampire repo gets pulled and installed. This is useful for specifying the desire chain (Beta, Gamma, or Delta) and allows use of a current run.sh.
+
+### Example running vampire/vampire/demo.sh
 
 ```bash
 nextflow run m5.nf -c local.config
