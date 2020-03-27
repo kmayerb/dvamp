@@ -5,33 +5,79 @@ and contains support for Olga aswell as R, this is a minimal container meant to 
 
 Currently the vampire conda env is created, but the vampire package is not installed. It can be done so in a nextflow process, here showing how to run the demo.sh shell script, and publish the model training diagnostic metrics.
 
+```bash
+nextflow run m5.nf -c local.config
+```
 
+local.config
+```bash
+process.executor = 'local'
+
+docker {
+    enabled = true
+    temp = 'auto'
+}
+
+```
+
+m5.nf workflow
 ```groovy
-params.output = "pub/"
+
+nextflow.preview.dsl=2
+
+params.batchfile = "test_manifest.csv"
+params.output_folder = "pub/"
 params.vampire_branch = "master"
 
-process{
-	container "quay.io/kmayerb/dvamp:0.0.1"
+process foo {
+    
+    input:
+      tuple name, file(x)
+    output:
+      tuple name, file("${x}.foo.txt")
+    script:
+      """
+      head -n 2 ${x} > ${x}.foo.txt
+      """
+}
 
-	publishDir "${params.output_folder}"
+process bar {
+    container "quay.io/kmayerb/dvamp:0.0.1"
 
-	input:
-		tuple name, file(x)
-	
-	output:
-      tuple name, file("diagnostic.txt.txt")
+    publishDir "${params.output_folder}"
+    
+    input:
+      tuple name, file(x)
+    
+    output:
+      tuple name, file("${x}.bar.txt"), file("m.txt"), file("diag.csv")
+    
+    script:
+      """
+      cut -d , -f 2 ${x} > ${x}.bar.txt 
+      source ~/.bashrc
+      conda activate vampire
+      git clone -b ${params.vampire_branch} https://github.com/kmayerb/vampire.git
+      pip install vampire/.
+      python -c "import vampire; print(vampire.__version__);" > m.txt
+      cd vampire/vampire/demo
+      bash demo.sh
+      cp _output_demo/diagnostics.csv ../../../diag.csv
+      """
+}
 
-	script:
-		"""
-		source ~/.bashrc
-		conda activate vampire
-		git clone -b ${params.vampire_branch} https://github.com/kmayerb/vampire.git
-		pip install vampire/.
-		python -c "import vampire; print(vampire.__version__);"
-		cd vampire/vampire/demo
-		bash demo.sh
-		cp _output_demo/diagnostics.csv ../../../diagnostic.txt
-		"""
+workflow {
+    main:
+      Channel.from(file(params.batchfile))
+       .splitCsv(header: true, sep: ",")
+       .map { sample ->
+       [sample.name, file(sample.x1)]}
+       .set{input_channel}
+      foo(input_channel)
+      foo.out.view()
+      bar(foo.out)
+      bar.out.view()
+}
 }
 
 ```
