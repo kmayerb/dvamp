@@ -85,7 +85,6 @@ workflow {
       bar(foo.out)
       bar.out.view()
 }
-}
 
 ```
 
