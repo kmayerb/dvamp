@@ -1,4 +1,6 @@
-# dvamp
+# dvamp : "quay.io/kmayerb/dvamp:0.0.1"
+
+<https://quay.io/repository/kmayerb/dvamp>
 
 An AWS Batch ready docker container for using kmayerb/vampire (forked from matsengrp/vampire/vampire). Whereas the original matesngrp countainer is > 10GB 
 and contains support for Olga aswell as R, this is a minimal container meant to recreate the python 3.6.10, tensorflow 1.14 environment needed to install a given branch of vampire, needed to train and evaluate a CDR3 VAE.
