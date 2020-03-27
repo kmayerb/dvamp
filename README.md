@@ -11,7 +11,7 @@ params.output = "pub/"
 params.vampire_branch = "master"
 
 process{
-	container quay.io/kmayerb/dvamp:0.0.1
+	container "quay.io/kmayerb/dvamp:0.0.1"
 
 	publishDir "${params.output_folder}"
 
